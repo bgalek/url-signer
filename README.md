@@ -4,7 +4,6 @@
 [![Build](https://github.com/bgalek/url-signer/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/bgalek/url-signer/actions/workflows/ci.yml)
 ![Codecov](https://img.shields.io/codecov/c/github/bgalek/url-signer.svg?style=flat-square)
 ![GitHub Release Date](https://img.shields.io/github/release-date/bgalek/url-signer.svg?style=flat-square)
-![Scrutinizer code quality](https://img.shields.io/scrutinizer/g/bgalek/url-signer.svg?style=flat-square)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bgalek_url-signer&metric=alert_status)](https://sonarcloud.io/dashboard?id=bgalek_url-signer)
 
 ## Why?
