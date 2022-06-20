@@ -11,7 +11,7 @@ plugins {
     jacoco
     id("pl.allegro.tech.build.axion-release") version "1.13.14"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("org.sonarqube") version "3.4.0.251"
+    id("org.sonarqube") version "3.4.0.2513"
 }
 
 repositories {
