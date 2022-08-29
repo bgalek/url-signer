@@ -1,5 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
@@ -10,7 +8,6 @@ plugins {
     signing
     jacoco
     id("pl.allegro.tech.build.axion-release") version "1.14.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
     id("org.sonarqube") version "3.4.0.2513"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
@@ -20,8 +17,8 @@ repositories {
 }
 
 dependencies {
-    shadow("org.springframework:spring-web:5.3.22")
-    shadow("commons-codec:commons-codec:1.15")
+    implementation("org.springframework:spring-web:5.3.22")
+    implementation("commons-codec:commons-codec:1.15")
     testImplementation("org.springframework:spring-web:5.3.20")
     testImplementation("commons-codec:commons-codec:1.15")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
@@ -42,16 +39,6 @@ tasks.jar {
         attributes(mapOf("Implementation-Title" to project.name, "Implementation-Version" to project.version))
     }
 }
-
-tasks.shadowJar {
-    minimize()
-}
-
-tasks.create<ConfigureShadowRelocation>("relocateShadowJar") {
-    target = tasks["shadowJar"] as ShadowJar
-}
-
-tasks["shadowJar"].dependsOn(tasks["relocateShadowJar"])
 
 tasks.test {
     useJUnitPlatform()
@@ -89,7 +76,6 @@ publishing {
         create<MavenPublication>("sonatype") {
             artifactId = "url-signer"
             from(components["java"])
-            artifact(tasks["shadowJar"])
             versionMapping {
                 usage("java-api") {
                     fromResolutionOf("runtimeClasspath")
