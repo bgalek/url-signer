@@ -89,6 +89,7 @@ publishing {
         create<MavenPublication>("sonatype") {
             artifactId = "url-signer"
             from(components["java"])
+            artifact(tasks["shadowJar"])
             versionMapping {
                 usage("java-api") {
                     fromResolutionOf("runtimeClasspath")
