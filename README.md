@@ -17,7 +17,7 @@ I can think about several use cases:
 ## Usage
 Add library dependency:
 ```groovy
-compile "com.github.bgalek.utils:url-signer:1.0.0"
+compile "com.github.bgalek.utils:url-signer:1.0.1"
 ```
 
 Add checksum to url using SHA256 signature:
