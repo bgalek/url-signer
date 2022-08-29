@@ -71,6 +71,81 @@ tasks.register<Jar>("javadocJar") {
 }
 
 jacoco {
-    toolVersion = "0.8.5"
-    reportsDir = file("$buildDir/reports/jacoco")
+    toolVersion = "0.8.6"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = true
+        xml.destination = file("$buildDir/reports/jacoco/report.xml")
+        csv.isEnabled = false
+        html.isEnabled = false
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("sonatype") {
+            artifactId = "url-signer"
+            from(components["java"])
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name.set("url-signer")
+                description.set("Easy way to ensure that link was not tempered with")
+                url.set("https://github.com/bgalek/url-signer/")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("bgalek")
+                        name.set("Bartosz Gałek")
+                        email.set("bartosz@galek.com.pl")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/bgalek/url-signer.git")
+                    developerConnection.set("scm:git:ssh://github.com:bgalek/url-signer.git")
+                    url.set("https://github.com/bgalek/url-signer/")
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username.set(System.getenv("SONATYPE_USERNAME"))
+            password.set(System.getenv("SONATYPE_PASSWORD"))
+        }
+    }
+}
+
+System.getenv("GPG_KEY_ID")?.let {
+    signing {
+        useInMemoryPgpKeys(
+            System.getenv("GPG_KEY_ID"),
+            System.getenv("GPG_PRIVATE_KEY"),
+            System.getenv("GPG_PRIVATE_KEY_PASSWORD")
+        )
+        sign(publishing.publications)
+    }
 }
