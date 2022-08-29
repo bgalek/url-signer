@@ -50,16 +50,6 @@ tasks.test {
     }
 }
 
-tasks.register<Jar>("sourcesJar") {
-    from(sourceSets.main.get().allJava)
-    archiveClassifier.set("sources")
-}
-
-tasks.register<Jar>("javadocJar") {
-    from(tasks.javadoc)
-    archiveClassifier.set("javadoc")
-}
-
 jacoco {
     toolVersion = "0.8.6"
 }
