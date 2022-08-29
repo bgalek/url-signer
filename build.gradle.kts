@@ -72,4 +72,5 @@ tasks.register<Jar>("javadocJar") {
 
 jacoco {
     toolVersion = "0.8.5"
+    reportsDir = file("$buildDir/reports/jacoco")
 }
