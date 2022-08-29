@@ -29,11 +29,13 @@ dependencies {
 group = "com.github.bgalek.utils"
 version = scmVersion.version
 
-configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+java {
+    withSourcesJar()
+    withJavadocJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
-
 tasks.jar {
     manifest {
         attributes(mapOf("Implementation-Title" to project.name, "Implementation-Version" to project.version))
