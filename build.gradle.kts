@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    shadow("org.springframework:spring-web:5.3.20")
+    shadow("org.springframework:spring-web:5.3.22")
     shadow("commons-codec:commons-codec:1.15")
     testImplementation("org.springframework:spring-web:5.3.20")
     testImplementation("commons-codec:commons-codec:1.15")
