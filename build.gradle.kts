@@ -12,6 +12,7 @@ plugins {
     id("pl.allegro.tech.build.axion-release") version "1.14.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("org.sonarqube") version "3.4.0.2513"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 repositories {
