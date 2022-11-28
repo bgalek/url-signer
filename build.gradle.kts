@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework:spring-web:5.3.23")
+    implementation("org.springframework:spring-web:6.0.2")
     implementation("commons-codec:commons-codec:1.15")
     testImplementation("org.springframework:spring-web:5.3.23")
     testImplementation("commons-codec:commons-codec:1.15")
