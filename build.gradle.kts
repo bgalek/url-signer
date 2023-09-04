@@ -8,7 +8,7 @@ plugins {
     signing
     jacoco
     id("pl.allegro.tech.build.axion-release") version "1.15.4"
-    id("org.sonarqube") version "4.3.0.3225"
+    id("org.sonarqube") version "4.3.1.3277"
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
