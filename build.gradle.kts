@@ -9,7 +9,7 @@ plugins {
     jacoco
     id("pl.allegro.tech.build.axion-release") version "1.17.0"
     id("org.sonarqube") version "5.0.0.4638"
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 repositories {
