@@ -23,7 +23,7 @@ dependencies {
     testImplementation("commons-codec:commons-codec:1.17.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.1")
 }
 
 group = "com.github.bgalek.utils"
