@@ -17,9 +17,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework:spring-web:5.3.23")
+    implementation("org.springframework:spring-web:6.1.13")
     implementation("commons-codec:commons-codec:1.17.1")
-    testImplementation("org.springframework:spring-web:5.3.23")
+    testImplementation("org.springframework:spring-web:6.1.13")
     testImplementation("commons-codec:commons-codec:1.17.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.2")
