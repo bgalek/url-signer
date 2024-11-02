@@ -2,7 +2,7 @@
 > Easy way to ensure that link was not tempered with
 
 [![Build](https://github.com/bgalek/url-signer/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/bgalek/url-signer/actions/workflows/ci.yml)
-![Codecov](https://img.shields.io/codecov/c/github/bgalek/url-signer.svg?style=flat-square)
+[![codecov](https://codecov.io/gh/bgalek/url-signer/graph/badge.svg?token=VDUL4P2CLF)](https://codecov.io/gh/bgalek/url-signer)
 ![GitHub Release Date](https://img.shields.io/github/release-date/bgalek/url-signer.svg?style=flat-square)
 ![Maven Central](https://img.shields.io/maven-central/v/com.github.bgalek.utils/url-signer?style=flat-square)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bgalek_url-signer&metric=alert_status)](https://sonarcloud.io/dashboard?id=bgalek_url-signer)
