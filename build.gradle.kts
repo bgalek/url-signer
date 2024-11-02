@@ -50,16 +50,9 @@ tasks.test {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.6"
-}
-
 tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
-        xml.destination = file("$buildDir/reports/jacoco/report.xml")
-        csv.isEnabled = false
-        html.isEnabled = false
     }
 }
 
