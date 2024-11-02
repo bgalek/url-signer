@@ -53,7 +53,7 @@ tasks.test {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
+        xml.required = true
     }
 }
 
