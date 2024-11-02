@@ -21,6 +21,8 @@ jobs:
         run: ./gradlew jacocoTestReport
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' && github.actor == 'dependabot[bot]' }}
