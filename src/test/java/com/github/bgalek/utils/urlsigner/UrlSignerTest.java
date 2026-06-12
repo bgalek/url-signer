@@ -1,6 +1,5 @@
 package com.github.bgalek.utils.urlsigner;
 
-import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,8 +13,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
+
+import static org.springframework.web.util.UriComponentsBuilder.fromUri;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,9 +32,9 @@ class UrlSignerTest {
         URI signed = urlSigner.sign(URI.create("https://github.com"));
 
         //then
-        assertEquals(String.format("https://github.com?checksum=%s", checksum), signed.toString());
-        assertTrue(urlSigner.verify(String.format("https://github.com?checksum=%s", checksum)));
-        assertFalse(urlSigner.verify(String.format("https://github.com?checksum=3%s0", checksum)));
+        assertEquals("https://github.com?checksum=%s".formatted(checksum), signed.toString());
+        assertTrue(urlSigner.verify("https://github.com?checksum=%s".formatted(checksum)));
+        assertFalse(urlSigner.verify("https://github.com?checksum=3%s0".formatted(checksum)));
         assertFalse(urlSigner.verify("https://github.com"));
     }
 
@@ -49,7 +50,7 @@ class UrlSignerTest {
                 Arguments.of(new SHA3_256ChecksumUrlSigner(), "dfcb585678a42ddd3252c770eb68d34cca87d4873f56ba2d25cdfabb2a1834f3"),
                 Arguments.of(new SHA3_384ChecksumUrlSigner(), "0507c6a36d99e6adca66c7dacf9d3eb128b3ff6c39f301bcd4b64c26a27d4d833781205a79f828941161a32c9a44570e"),
                 Arguments.of(new SHA3_512ChecksumUrlSigner(), "7cd644cb57c300dfafb75c95e1fef58a846991ce561e8635d86ef7e41e04c17d4096b948acde40410b02e75e99bc92081689e6c8ebd00aecca76bf66e45f6a02"),
-                Arguments.of(new HMACChecksumUrlSigner(HmacAlgorithms.HMAC_MD5, "secret"), "8cf5ce416077c41d40275db6577c0273")
+                Arguments.of(new HMACChecksumUrlSigner("HmacMD5", "secret"), "8cf5ce416077c41d40275db6577c0273")
         );
     }
 
@@ -61,7 +62,7 @@ class UrlSignerTest {
             @Override
             public URI sign(URI uri) {
                 return UriComponentsBuilder.fromUri(uri)
-                        .replaceQueryParam(signatureParameterName(), Collections.emptyList())
+                        .replaceQueryParam(signatureParameterName(), List.of())
                         .replaceQueryParam(signatureParameterName(), "★★★")
                         .build()
                         .toUri();
@@ -89,23 +90,67 @@ class UrlSignerTest {
     }
 
     @Test
-    @DisplayName("should sign url with expiration time")
+    @DisplayName("should embed per-URL expiry and accept before, reject after TTL")
     void expirationTest() {
         //given
-        TestClock clock = new TestClock(Instant.now(), ZoneOffset.UTC);
-        UrlSigner urlSigner = new TimeExpirationUrlSigner(Duration.ofMinutes(15), clock);
+        TestClock clock = new TestClock(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC);
+        UrlSigner urlSigner = new TimeExpirationUrlSigner(Duration.ofMinutes(15), "secret", clock);
 
         //when
-        urlSigner.sign(URI.create("https://github.com"));
+        URI signed = urlSigner.sign(URI.create("https://github.com"));
+
+        //then - expiry is embedded in the URL itself, not baked into the signer
+        assertTrue(signed.toString().contains("expires="));
+        assertTrue(urlSigner.verify(signed));
+
+        //when - advance past TTL
+        clock.fastForward(Duration.ofMinutes(16));
 
         //then
-        assertTrue(urlSigner.verify("https://github.com?checksum=8d7bdc5fe9dd7791a9dda4c78621bfea"));
+        assertFalse(urlSigner.verify(signed));
+    }
 
-        //when
-        clock.fastForward(Duration.ofHours(100));
+    @Test
+    @DisplayName("should reject URL with tampered expiry")
+    void tamperedExpiryTest() {
+        //given
+        TestClock clock = new TestClock(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC);
+        UrlSigner urlSigner = new TimeExpirationUrlSigner(Duration.ofMinutes(15), "secret", clock);
+        URI signed = urlSigner.sign(URI.create("https://github.com"));
 
-        //then
-        assertFalse(urlSigner.verify("https://github.com?checksum=8d7bdc5fe9dd7791a9dda4c78621bfea"));
+        //when - attacker extends expiry without knowing the secret
+        URI tampered = fromUri(signed)
+                .replaceQueryParam(TimeExpirationUrlSigner.EXPIRY_PARAMETER_NAME, clock.instant().plus(Duration.ofDays(365)).getEpochSecond())
+                .build()
+                .toUri();
+
+        //then - HMAC now covers the expires param, so tampering invalidates the signature
+        assertFalse(urlSigner.verify(tampered));
+    }
+
+    @Test
+    @DisplayName("each sign() call produces its own expiry window (safe as singleton bean)")
+    void perCallExpiryTest() {
+        //given
+        TestClock clock = new TestClock(Instant.parse("2024-01-01T00:00:00Z"), ZoneOffset.UTC);
+        UrlSigner urlSigner = new TimeExpirationUrlSigner(Duration.ofMinutes(15), "secret", clock);
+
+        URI first = urlSigner.sign(URI.create("https://github.com/first"));
+
+        //when - time advances but is still within TTL
+        clock.fastForward(Duration.ofMinutes(10));
+        URI second = urlSigner.sign(URI.create("https://github.com/second"));
+
+        //then - both URLs are valid independently
+        assertTrue(urlSigner.verify(first));
+        assertTrue(urlSigner.verify(second));
+
+        //when - advance past first URL's TTL but within second's
+        clock.fastForward(Duration.ofMinutes(6));
+
+        //then - first expired, second still valid
+        assertFalse(urlSigner.verify(first));
+        assertTrue(urlSigner.verify(second));
     }
 
     static class TestClock extends Clock {

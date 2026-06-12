@@ -7,9 +7,9 @@ plugins {
     `maven-publish`
     signing
     jacoco
-    id("pl.allegro.tech.build.axion-release") version "1.19.1"
-    id("org.sonarqube") version "6.2.0.5505"
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
+    alias(libs.plugins.axion.release)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.nexus.publish)
 }
 
 repositories {
@@ -17,13 +17,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework:spring-web:5.3.23")
-    implementation("commons-codec:commons-codec:1.19.0")
-    testImplementation("org.springframework:spring-web:5.3.23")
-    testImplementation("commons-codec:commons-codec:1.19.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    api(libs.jspecify)
+    implementation(libs.spring.web)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 group = "com.github.bgalek.utils"
@@ -33,7 +31,7 @@ java {
     withSourcesJar()
     withJavadocJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -109,6 +107,8 @@ nexusPublishing {
         sonatype {
             username.set(System.getenv("SONATYPE_USERNAME"))
             password.set(System.getenv("SONATYPE_PASSWORD"))
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }

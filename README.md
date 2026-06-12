@@ -8,51 +8,58 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bgalek_url-signer&metric=alert_status)](https://sonarcloud.io/dashboard?id=bgalek_url-signer)
 
 ## Why?
-I can think about several use cases: 
+I can think about several use cases:
 
 - a disposable link, that stops working after user clicks it
-- a link containing parameters that should not be tempered with
+- a link containing parameters that should not be tampered with
 - a signed link, that can be checked if it was issued by the author
-- time expiring links that cannot be extended simply by editng link
+- time-expiring links that cannot be extended simply by editing the link
 
 ## Usage
 Add library dependency:
 ```groovy
-compile "com.github.bgalek.utils:url-signer:1.0.1"
+implementation "com.github.bgalek.utils:url-signer:1.0.1"
 ```
 
-Add checksum to url using SHA256 signature:
+Sign a URL using SHA-256:
 ```java
-UrlSigner signer = new SHA256ChecksumUrlSigner().sign(URI.create("https://github.com"))
-signer.verify("https://github.com?checksum=996e1f714b08e971ec79e3bea686287e66441f043177999a13dbc546d8fe402a")
+UrlSigner signer = new SHA256ChecksumUrlSigner();
+URI signed = signer.sign(URI.create("https://github.com"));
+// https://github.com?checksum=996e1f714b08e971ec79e3bea686287e66441f043177999a13dbc546d8fe402a
+
+signer.verify(signed); // true
 ```
 
-Sign url using:
+Sign a URL using HMAC (tamper-proof — requires a secret):
 ```java
-UrlSigner signer = new HMACChecksumUrlSigner(HmacAlgorithms.HMAC_MD5, "secret").sign(URI.create("https://github.com"))
-signer.verify("https://github.com?checksum=996e1f714b08e971ec79e3bea686287e66441f043177999a13dbc546d8fe402a")
+UrlSigner signer = new HMACChecksumUrlSigner("HmacSHA256", "my-secret");
+URI signed = signer.sign(URI.create("https://github.com"));
+signer.verify(signed); // true
 ```
 
-Expiring url: 
+Sign a URL with a per-URL expiry (safe as a singleton bean):
 ```java
-UrlSigner signer = new TimeExpirationUrlSigner(Duration.ofMinutes(15), clock)
-urlSigner.verify("https://github.com?checksum=8d7bdc5fe9dd7791a9dda4c78621bfea")
+UrlSigner signer = new TimeExpirationUrlSigner(Duration.ofMinutes(15), "my-secret");
+URI signed = signer.sign(URI.create("https://github.com"));
+// https://github.com?expires=1234567890&checksum=<hmac-sha256>
+
+signer.verify(signed); // true — before TTL expires
+// ... 15 minutes later ...
+signer.verify(signed); // false — expired
 ```
+
+The `expires` parameter is covered by the HMAC, so an attacker cannot extend the TTL without knowing the secret.
 
 ## Extending/Customization
 
-Simply implement UrlSigner interface to create 
-Your own signature/verification algorithm:
-
-To generate url signed
-using 3 stars like `https://github.com?signature=★★★` you can use:
+Implement `UrlSigner` to provide your own signing algorithm:
 
 ```java
 UrlSigner urlSigner = new UrlSigner() {
     @Override
     public URI sign(URI uri) {
         return UriComponentsBuilder.fromUri(uri)
-                .replaceQueryParam(signatureParameterName(), Collections.emptyList())
+                .replaceQueryParam(signatureParameterName(), List.of())
                 .replaceQueryParam(signatureParameterName(), "★★★")
                 .build()
                 .toUri();
@@ -69,5 +76,6 @@ UrlSigner urlSigner = new UrlSigner() {
     }
 };
 
+URI signed = urlSigner.sign(URI.create("https://github.com"));
+// https://github.com?signature=★★★
 ```
-

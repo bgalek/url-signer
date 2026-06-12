@@ -1,11 +1,15 @@
 package com.github.bgalek.utils.urlsigner;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import java.net.URI;
 
+/** {@link HashChecksumUrlSigner} using the MD5 digest algorithm. */
 public class MD5ChecksumUrlSigner implements HashChecksumUrlSigner {
+
+    /** Creates a new instance. */
+    public MD5ChecksumUrlSigner() {}
+
+    @Override
     public Checksum createChecksum(URI uri) {
-        return Checksum.valueOf(DigestUtils.md5Hex(uri.toString()));
+        return Checksum.valueOf(HashChecksumUrlSigner.digestHex("MD5", uri.toString()));
     }
 }
