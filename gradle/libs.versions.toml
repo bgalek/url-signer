@@ -1,5 +1,5 @@
 [versions]
-spring-web = "6.2.8"
+spring-web = "7.0.8"
 junit = "6.1.0"
 jspecify = "1.0.0"
 axion-release = "1.21.2"
