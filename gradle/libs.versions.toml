@@ -3,7 +3,7 @@ spring-web = "7.0.8"
 junit = "6.1.0"
 jspecify = "1.0.0"
 axion-release = "1.21.2"
-sonarqube = "6.2.0.5505"
+sonarqube = "7.3.1.8318"
 nexus-publish = "2.0.0"
 
 [libraries]
